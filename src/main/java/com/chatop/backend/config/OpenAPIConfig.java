@@ -7,8 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
 @OpenAPIDefinition(
-        info = @Info(title = "ChatOp", version = "1.0"),
-        security = @SecurityRequirement(name = "BearerAuth")
+        info = @Info(title = "ChatOp", version = "1.0")
 )
 @SecurityScheme(
         name = "BearerAuth",

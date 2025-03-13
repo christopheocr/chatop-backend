@@ -9,6 +9,8 @@ import com.chatop.backend.entity.User;
 import com.chatop.backend.service.AuthenticationService;
 import com.chatop.backend.service.JwtService;
 import com.chatop.backend.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +37,7 @@ public class AuthenticationController {
         this.userService = userService;
     }
 
+    @Operation(summary = "Enregistrer un nouvel utilisateur", description = "Permet à un utilisateur de créer un compte.")
     @PostMapping("/register")
     public ResponseEntity<Void> register(@RequestBody RegisterUserDto registerUserDto) {
         User registeredUser = authenticationService.signup(registerUserDto);
@@ -44,6 +47,7 @@ public class AuthenticationController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Authentifier un utilisateur", description = "Permet à un utilisateur de se connecter et de recevoir un token JWT.")
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> authenticate(@RequestBody LoginUserDto loginUserDto) {
         User authenticatedUser = authenticationService.authenticate(loginUserDto);
@@ -53,6 +57,9 @@ public class AuthenticationController {
         return ResponseEntity.ok(loginResponse);
     }
 
+    @Operation(summary = "Récupérer les informations de l'utilisateur connecté",
+            description = "Retourne les informations de l'utilisateur actuellement authentifié. Nécessite un JWT.")
+    @SecurityRequirement(name = "BearerAuth")
     @GetMapping("/me")
     public ResponseEntity<UserInfoDto> authenticatedUser() {
         User currentUser = userService.getCurrentUser();
