@@ -11,17 +11,13 @@ import com.chatop.backend.service.JwtService;
 import com.chatop.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 
+@Tag(name = "Authentification", description = "Endpoints permettant l'inscription, la connexion et la récupération des informations de l'utilisateur connecté.")
 @RestController
 @RequestMapping("/auth")
 public class AuthenticationController {
