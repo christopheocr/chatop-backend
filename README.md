@@ -66,11 +66,26 @@ L'API est maintenant accessible sur **`http://localhost:3001`** 🚀
 
 ## 📡 Endpoints Principaux
 
-| 🔹 Méthode | 🔹 Endpoint           | 🔹 Description                  |
-|-----------|----------------------|--------------------------------|
-|   |        |  |
-|     |        |        |
-|   |        |       |
+### 🔐 Authentification
+| 🔹 Méthode | 🔹 Endpoint         | 🔹 Description |
+|-----------|---------------------|--------------------------------|
+| **POST**  | `api/auth/register` | Enregistrer un nouvel utilisateur |
+| **POST**  | `api/auth/login`       | Authentifier un utilisateur |
+| **GET**   | `api/auth/me`          | Récupérer les informations de l'utilisateur connecté |
+
+### 🏠 Gestion des locations
+| 🔹 Méthode | 🔹 Endpoint       | 🔹 Description |
+|-----------|----------------|--------------------------------|
+| **GET**   | `api/rentals/{id}`  | Récupérer une location par son ID |
+| **PUT**   | `api/rentals/{id}`  | Met à jour une location existante |
+| **GET**   | `api/rentals`       | Récupérer la liste de toutes les locations disponibles |
+| **POST**  | `api/rentals`       | Créer une nouvelle location |
+
+### ✉️ Gestion des messages
+| 🔹 Méthode | 🔹 Endpoint       | 🔹 Description |
+|-----------|----------------|--------------------------------|
+| **POST**  | `api/messages`     | Envoyer un message |
+
 
 
 ## 🎨 Frontend Angular
