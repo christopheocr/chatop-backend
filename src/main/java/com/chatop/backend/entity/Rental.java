@@ -31,15 +31,13 @@ public class Rental {
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
-    @JsonIgnore
     private User owner;
 
 
     @OneToMany(mappedBy = "rental", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<Message> messages;
 
-    @JsonProperty("owner_id")
+
     public Integer getOwnerId() {
         return owner != null ? owner.getId() : null;
     }

@@ -38,11 +38,9 @@ public class User implements UserDetails{
     private Date updatedAt;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<Rental> rentals;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<Message> messages;
 
     @Override
