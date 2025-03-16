@@ -59,12 +59,8 @@ public class RentalController {
     )
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<RentalResponseDto> createRental(@ModelAttribute CreateRentalDto rentalDto) {
-        try {
             rentalService.createRental(rentalDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(new RentalResponseDto("Rental created successfully!"));
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "File upload failed", e);
-        }
     }
 
     @Operation(

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,7 +30,7 @@ public class FileController {
             Resource resource = new UrlResource(filePath.toUri());
 
             if (!resource.exists() || !resource.isReadable()) {
-                return ResponseEntity.notFound().build();
+                throw new FileNotFoundException("File not found: " + filename);
             }
 
             String contentType = Files.probeContentType(filePath);
@@ -43,7 +44,7 @@ public class FileController {
                     .body(resource);
 
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            throw new RuntimeException("Error retrieving file: " + filename, e);
         }
     }
 }

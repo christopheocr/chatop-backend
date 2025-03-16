@@ -6,6 +6,7 @@ import com.chatop.backend.dto.LoginUserDto;
 import com.chatop.backend.dto.RegisterUserDto;
 import com.chatop.backend.dto.UserInfoDto;
 import com.chatop.backend.entity.User;
+import com.chatop.backend.exception.UserRegistrationException;
 import com.chatop.backend.service.AuthenticationService;
 import com.chatop.backend.service.JwtService;
 import com.chatop.backend.service.UserService;
@@ -38,9 +39,9 @@ public class AuthenticationController {
     public ResponseEntity<Void> register(@RequestBody RegisterUserDto registerUserDto) {
         User registeredUser = authenticationService.signup(registerUserDto);
         if (registeredUser == null || registeredUser.getId() == null) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            throw new UserRegistrationException("User registration failed");
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(summary = "Authentifier un utilisateur", description = "Permet à un utilisateur de se connecter et de recevoir un token JWT.")

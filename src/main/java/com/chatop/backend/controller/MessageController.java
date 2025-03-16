@@ -34,12 +34,9 @@ public class MessageController {
     )
     @PostMapping()
     public ResponseEntity<Map<String, String>> sendMessage(@RequestBody CreateMessageDto messagePostDto) {
-
         messageService.save(messagePostDto);
-
         Map<String, String> response = new HashMap<>();
         response.put("message", "Message send with success");
-
         return ResponseEntity.ok(response);
     }
 }

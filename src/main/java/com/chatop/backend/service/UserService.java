@@ -3,6 +3,7 @@ package com.chatop.backend.service;
 
 import com.chatop.backend.dto.UserInfoDto;
 import com.chatop.backend.entity.User;
+import com.chatop.backend.exception.UserNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class UserService {
 
     public UserInfoDto convertToUserInfoDto(User user) {
         if (user == null) {
-            return null;
+            throw new UserNotFoundException("User cannot be null");
         }
 
         UserInfoDto userDto = new UserInfoDto();

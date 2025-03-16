@@ -6,6 +6,10 @@ import com.chatop.backend.dto.RentalDto;
 import com.chatop.backend.dto.RentalSummaryDto;
 import com.chatop.backend.dto.UpdateRentalDto;
 import com.chatop.backend.entity.Rental;
+import com.chatop.backend.entity.User;
+import com.chatop.backend.exception.FileStorageException;
+import com.chatop.backend.exception.RentalNotFoundException;
+import com.chatop.backend.exception.UnauthorizedRentalAccessException;
 import com.chatop.backend.repository.RentalRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -24,6 +28,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -43,13 +48,14 @@ public class RentalService {
 
     public List<RentalSummaryDto> getAllRentals() {
         return rentalRepository.findAll().stream()
-                .map(this::convertToRentalSummaryDto) // Utilise RentalSummaryDto ici
+                .map(this::convertToRentalSummaryDto)
                 .collect(Collectors.toList());
     }
 
     public Optional<RentalDto> getRentalById(int id) {
-        return rentalRepository.findById(id)
-                .map(this::convertToRentalDto);
+        Rental rental = rentalRepository.findById(id)
+                .orElseThrow(() -> new RentalNotFoundException("Rental not found with ID: " + id));
+        return Optional.of(convertToRentalDto(rental));
     }
 
     private RentalDto convertToRentalDto(Rental rental) {
@@ -90,24 +96,33 @@ public class RentalService {
         );
     }
 
-    public Rental createRental(CreateRentalDto rentalDto) throws IOException {
-        String fileName = null;
-        if (rentalDto.getPicture() != null && !rentalDto.getPicture().isEmpty()) {
-            fileName = saveFile(rentalDto.getPicture());
+    public Rental createRental(CreateRentalDto rentalDto) {
+        try {
+            String fileName = null;
+            if (rentalDto.getPicture() != null && !rentalDto.getPicture().isEmpty()) {
+                fileName = saveFile(rentalDto.getPicture());
+            }
+            Rental rental = convertToRental(rentalDto, fileName);
+            return rentalRepository.save(rental);
+        }catch (IOException e){
+            throw new RuntimeException("File upload failed", e);
         }
-        Rental rental = convertToRental(rentalDto, fileName);
-        return rentalRepository.save(rental);
+
     }
 
     private String saveFile(MultipartFile file) throws IOException {
-        File uploadDir = new File(UPLOAD_DIR);
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
+        try {
+            File uploadDir = new File(UPLOAD_DIR);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            Path filePath = Path.of(UPLOAD_DIR, fileName);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            return fileName;
+        } catch (IOException e) {
+            throw new FileStorageException("File upload failed", e);
         }
-        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-        Path filePath = Path.of(UPLOAD_DIR, fileName);
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-        return fileName;
     }
 
     public Rental convertToRental(CreateRentalDto rentalDto, String fileName) {
@@ -125,12 +140,11 @@ public class RentalService {
 
     public void updateRental(int id, UpdateRentalDto rentalDto) {
         Rental rental = rentalRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rental not found"));
+                .orElseThrow(() -> new RentalNotFoundException("Rental not found with ID: " + id));
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        int currentUserId = ((com.chatop.backend.entity.User) authentication.getPrincipal()).getId();
-        if (rental.getOwnerId() != currentUserId) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to modify this rental");
+        User currentUser = userService.getCurrentUser();
+        if (!Objects.equals(rental.getOwnerId(), currentUser.getId())) {
+            throw new UnauthorizedRentalAccessException("You are not allowed to modify this rental");
         }
 
         if (rentalDto.getName() != null) rental.setName(rentalDto.getName());

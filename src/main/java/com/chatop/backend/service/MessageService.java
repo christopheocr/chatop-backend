@@ -5,6 +5,8 @@ import com.chatop.backend.dto.CreateMessageDto;
 import com.chatop.backend.entity.Message;
 import com.chatop.backend.entity.Rental;
 import com.chatop.backend.entity.User;
+import com.chatop.backend.exception.RentalNotFoundException;
+import com.chatop.backend.exception.UserNotFoundException;
 import com.chatop.backend.repository.MessageRepository;
 import com.chatop.backend.repository.RentalRepository;
 import com.chatop.backend.repository.UserRepository;
@@ -29,14 +31,11 @@ public class MessageService {
 
 
     public void save(CreateMessageDto messagePostDto) {
-
         User user = userRepository.findById(messagePostDto.getUserId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + messagePostDto.getUserId()));
 
         Rental rental = rentalRepository.findById(messagePostDto.getRentalId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rental not found"));
-
+                .orElseThrow(() -> new RentalNotFoundException("Rental not found with ID: " + messagePostDto.getRentalId()));
 
         Message message = new Message();
         message.setUser(user);
